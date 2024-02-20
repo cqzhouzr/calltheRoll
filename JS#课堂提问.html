@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>在线选座案例</title>
+<script>
+	var rows=4;
+	var cols=10; 
+	// 创建动态二维数组，初始化为0
+	var seatmap = new Array(rows);
+	for (let i = 0; i < rows; i++) {
+		seatmap[i] = new Array(cols);
+	}
+ 	for(i=0;i<rows;i++){			
+		for(j=0;j<cols;j++){
+			seatmap[i][j]=0;
+		}
+	}
+	
+	nameString="罗鸿,闫云龙,牛世龙,张翰生,乔博,孙逸舟,胡逸辉,李嘉洋,尤春海,宋松霖,林家兴,汪梦龙,田云川,夏清,黄锴,左毅阳,赵兵山,赵丹瑞,潘林,何可人,赵宝阳,张明明,瓦力斯·赛米,王远鹏,林成赟,郑东健,黄有华,刘廷宏,彭询,石豪杰,吴行,涂倩,胡绮梦,张育榕,顾世贤,高丹,陈明星,梁娇"
+	let name=nameString.split(",");
+	var stuNum=name.length;
+
+	
+	function getName(i,j) {
+		var index=i*cols+j;
+		if(index<stuNum)
+			return name[index];
+		else
+			return "-";
+	}
+	window.onload = function(){
+		var roomNode = document.getElementById("room");
+		roomNode.style.width=cols*60+8+"px";
+		for(i=0;i<rows;i++){
+			var divNode = document.createElement('div');
+			divNode.id="row"+i;
+			roomNode.appendChild(divNode);		
+			var div_clear=document.createElement("div");//创建一个清除前序float的div
+			div_clear.style.clear="both";
+			roomNode.appendChild(div_clear);		
+			for(j=0;j<cols;j++){
+				addImg(i,j);
+			}
+		}
+	}
+	function clearSeatMap() {
+		for(i=0;i<rows;i++){			
+			for(j=0;j<cols;j++){
+				var imgObj = document.getElementById("img"+i+"_"+j);
+				imgObj.src="images/空座.gif";
+				seatmap[i][j]=0;
+			}
+		}		
+	}
+	function pick_seat(){
+		clearSeatMap();
+		while(true){
+			var rdn_i = Math.floor(Math.random() * rows);  //0-4之间的随机数
+			var rdn_j = Math.floor(Math.random() * cols);  //0-4之间的随机数
+			if(rdn_i*cols+rdn_j<stuNum)
+				break;
+		}
+		var imgObj = document.getElementById("img"+rdn_i+"_"+rdn_j);		
+		if (seatmap[rdn_i][rdn_j]==1)	//如果座位已售，则不可选
+			return 0;
+		else if (seatmap[rdn_i][rdn_j]==0){
+			imgObj.src="images/已选.gif";
+			seatmap[rdn_i][rdn_j]=2;}
+		else{
+			seatmap[rdn_i][rdn_j]=0
+			imgObj.src="images/空座.gif";}			
+		
+	}
+	function timer() {
+		timerId = setInterval(pick_seat, 100);
+	}
+	function stopTimer() {
+		clearTimeout(timerId); 
+	}	
+	function addImg(i,j){
+		img="img"+i+"_"+j;
+		var div_cell=document.createElement("div");//创建一个div
+		var div_seat=document.createElement("div");
+		div_cell.style.width="60px";		
+		div_cell.style.float="left";
+		div_cell.appendChild(div_seat);		
+		var div_name=document.createElement("div");
+		var stuName=getName(i,j);
+		if(stuName.length>3)//缩写长姓名
+			stuNameAbbr=stuName.substr(0,2)+"..."
+		else
+			stuNameAbbr=stuName;
+		div_name.innerHTML=stuNameAbbr;
+		div_cell.appendChild(div_name);
+		
+		var imgNode = document.createElement("img");//创建一个图片
+		if( seatmap[i][j]==1)
+			imgNode.src = "images/已卖.gif";//设置图片节点的src属性
+		else
+			imgNode.src = "images/空座.gif";
+		imgNode.id=img;
+		imgNode.style.margin = 'auto 4px'; 
+		imgNode.title = stuName; //"座位号"+i+"排"+j+"号";//设置图片节点的title属性
+		imgNode.setAttribute("onclick","pick_seat("+i+","+j+")");  		
+		
+		div_seat.appendChild(imgNode);
+		var divNode = document.getElementById("row"+i);
+		divNode.appendChild(div_cell);//追加图片节点到div层中
+	}
+	
+	
+</script>
+
+</head>
+<body>
+<br><br>
+<span style="font-size: large;font-weight: bold;">西南大学课堂提问点名</span>
+<div id="room" style="width:600px;border-style:double;padding: 10px 0px 20px 20px;margin: 10px 0px 20px 0px;" ></div>
+<div id="myDiv" ></div>
+<button onclick="timer()">提问</button>
+<button onclick="stopTimer()">停</button>
+</body>
+</html>
+
